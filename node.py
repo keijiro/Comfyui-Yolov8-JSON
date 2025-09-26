@@ -239,7 +239,9 @@ def yolov8_segment(model, image, label_name, threshold):
 
     for result in results:
         masks = result.masks.data
-        res_mask.append(torch.sum(masks, dim=0))
+        m = torch.sum(masks, dim=0)
+        m = torch.clamp(m, 0, 1).unsqueeze(0).float()
+        res_mask.append(m)
     return (image_tensor_out, res_mask)
 
 def yolov8_detect(model, image, label_name, json_type, threshold):
