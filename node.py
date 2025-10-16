@@ -238,10 +238,16 @@ def yolov8_segment(model, image, label_name, threshold):
     res_mask=[]
 
     for result in results:
-        masks = result.masks.data
-        m = torch.sum(masks, dim=0)
-        m = torch.clamp(m, 0, 1).unsqueeze(0).float()
-        res_mask.append(m)
+        if result.masks is not None:
+            masks = result.masks.data
+            m = torch.sum(masks, dim=0)
+            m = torch.clamp(m, 0, 1).unsqueeze(0).float()
+            res_mask.append(m)
+        else:
+            # No detections, create an empty mask
+            h, w = result.orig_shape
+            empty_mask = torch.zeros((1, h, w), dtype=torch.float32)
+            res_mask.append(empty_mask)
     return (image_tensor_out, res_mask)
 
 def yolov8_detect(model, image, label_name, json_type, threshold):
